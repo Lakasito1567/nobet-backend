@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
@@ -12,11 +13,25 @@ export class UsersService {
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
-    const newUser = this.usersRepository.create(createUserDto);
-    return await this.usersRepository.save(newUser);
-  }
+  try {
+    const salt = await bcrypt.genSalt(10); // Generamos el salto explícitamente
+    const hashedPassword = await bcrypt.hash(createUserDto.password, salt);
 
-  async findOne(username: string): Promise<User | null> {
-    return await this.usersRepository.findOneBy({ username });
+    const newUser = this.usersRepository.create({
+      username: createUserDto.username,
+      email: createUserDto.email,
+      password: hashedPassword,
+    });
+
+    return await this.usersRepository.save(newUser);
+  } catch (error) {
+    console.error("Error creando usuario:", error);
+    throw error; // Esto nos dirá en la consola qué falló exactamente
   }
+}
+  
+  async findOneByUsername(username: string): Promise<User | null> {
+  return await this.usersRepository.findOneBy({ username });
+}
+
 }
