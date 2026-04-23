@@ -34,4 +34,19 @@ export class UsersService {
   return await this.usersRepository.findOneBy({ username });
 }
 
+async updateBalance(userId: number, amount: number): Promise<User> {
+  const user = await this.usersRepository.findOneBy({ id: userId });
+  if (!user) throw new Error('Usuario no encontrado');
+
+  const currentBalance = parseFloat(user.balance.toString());
+  const newBalance = currentBalance + amount;
+
+  if (newBalance < 0) {
+    throw new Error('Saldo insuficiente para esta apuesta');
+  }
+
+  user.balance = newBalance;
+  return await this.usersRepository.save(user);
+}
+
 }
