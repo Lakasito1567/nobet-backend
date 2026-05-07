@@ -58,6 +58,14 @@ export class UsersService {
     return await this.usersRepository.findOne({ where: { id } });
   }
 
+  async getLeaderboard(): Promise<User[]> {
+  return await this.usersRepository.find({
+      order: { balance: 'DESC' }, // Ordenar de mayor a menor
+      take: 10, // Solo los 10 mejores
+      select: ['username', 'balance'] // Por seguridad, solo enviamos estos campos
+    });
+  }
+
   /**
    * Actualiza el balance del usuario (Blackjack)
    */
