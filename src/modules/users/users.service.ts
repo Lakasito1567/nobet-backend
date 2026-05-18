@@ -4,13 +4,22 @@ import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
+import {
+  FriendRequest,
+  FriendRequestStatus,
+} from './entities/friend-request.entity';
+
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
+
+    @InjectRepository(FriendRequest)
+    private friendRequestRepository: Repository<FriendRequest>,
   ) {}
+  
 
   /**
    * Crea un nuevo usuario con contraseña encriptada
@@ -120,5 +129,171 @@ export class UsersService {
 
     user.balance = newBalance;
     return await this.usersRepository.save(user);
+  }
+
+  async claimCharity(userId: number): Promise<User> {
+    const user = await this.findOneById(userId);
+    if (!user) throw new NotFoundException('Usuario no encontrado');
+
+    if (Number(user.balance) > 0) {
+      throw new BadRequestException('Solo disponible sin saldo');
+    }
+
+    user.balance = 1;
+    return await this.usersRepository.save(user);
+  }
+
+  async sendFriendRequest(userId: number, username: string) {
+    const sender = await this.usersRepository.findOne({
+      where: { id: userId },
+      relations: ['friends'],
+    });
+
+    const receiver = await this.usersRepository.findOne({
+      where: { username },
+    });
+
+    if (!sender || !receiver) {
+      throw new NotFoundException('Usuario no encontrado');
+    }
+
+    if (sender.id === receiver.id) {
+      throw new BadRequestException('No puedes agregarte a ti mismo');
+    }
+
+    const alreadyFriend = sender.friends.some(
+      friend => friend.id === receiver.id,
+    );
+
+    if (alreadyFriend) {
+      throw new BadRequestException('Ya sois amigos');
+    }
+
+    const existingRequest = await this.friendRequestRepository.findOne({
+      where: {
+        sender: { id: sender.id },
+        receiver: { id: receiver.id },
+        status: FriendRequestStatus.PENDING,
+      },
+    });
+
+    if (existingRequest) {
+      throw new BadRequestException('Solicitud ya enviada');
+    }
+
+    const request = this.friendRequestRepository.create({
+      sender,
+      receiver,
+    });
+
+    return await this.friendRequestRepository.save(request);
+  }
+
+  async getPendingRequests(userId: number) {
+    return await this.friendRequestRepository.find({
+      where: {
+        receiver: { id: userId },
+        status: FriendRequestStatus.PENDING,
+      },
+    });
+  }
+
+  async acceptFriendRequest(userId: number, requestId: number) {
+    const request = await this.friendRequestRepository.findOne({
+      where: { id: requestId },
+      relations: ['sender', 'receiver'],
+    });
+
+    if (!request) {
+      throw new NotFoundException('Solicitud no encontrada');
+    }
+
+    if (request.receiver.id !== userId) {
+      throw new BadRequestException('No autorizado');
+    }
+
+    request.status = FriendRequestStatus.ACCEPTED;
+    await this.friendRequestRepository.save(request);
+
+    const sender = await this.usersRepository.findOne({
+      where: { id: request.sender.id },
+      relations: ['friends'],
+    });
+
+    const receiver = await this.usersRepository.findOne({
+      where: { id: request.receiver.id },
+      relations: ['friends'],
+    });
+
+    if (!sender || !receiver) return;
+
+    sender.friends.push(receiver);
+    receiver.friends.push(sender);
+
+    await this.usersRepository.save(sender);
+    await this.usersRepository.save(receiver);
+
+    return { message: 'Solicitud aceptada' };
+  }
+
+  async rejectFriendRequest(userId: number, requestId: number) {
+    const request = await this.friendRequestRepository.findOne({
+      where: { id: requestId },
+      relations: ['receiver'],
+    });
+
+    if (!request) {
+      throw new NotFoundException('Solicitud no encontrada');
+    }
+
+    if (request.receiver.id !== userId) {
+      throw new BadRequestException('No autorizado');
+    }
+
+    request.status = FriendRequestStatus.REJECTED;
+    return await this.friendRequestRepository.save(request);
+  }
+
+  async removeFriend(userId: number, friendId: number) {
+    const user = await this.usersRepository.findOne({
+      where: { id: userId },
+      relations: ['friends'],
+    });
+
+    const friend = await this.usersRepository.findOne({
+      where: { id: friendId },
+      relations: ['friends'],
+    });
+
+    if (!user || !friend) {
+      throw new NotFoundException('Usuario no encontrado');
+    }
+
+    user.friends = user.friends.filter(f => f.id !== friendId);
+    friend.friends = friend.friends.filter(f => f.id !== userId);
+
+    await this.usersRepository.save(user);
+    await this.usersRepository.save(friend);
+
+    return { message: 'Amigo eliminado' };
+  }
+
+  async getFriendsLeaderboard(userId: number): Promise<User[]> {
+    const user = await this.usersRepository.findOne({
+      where: { id: userId },
+      relations: ['friends'],
+    });
+
+    if (!user) {
+      throw new NotFoundException('Usuario no encontrado');
+    }
+
+    return [...user.friends]
+    .sort((a, b) => Number(b.balance) - Number(a.balance))
+    .map(friend => ({
+      id: friend.id,
+      username: friend.username,
+      balance: friend.balance,
+    } as User));
   }
 }
