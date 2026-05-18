@@ -1,4 +1,4 @@
-# 🎰 NoBet — Backend
+
 
 > API REST + WebSocket Gateway para la plataforma de casino online NoBet.
 
@@ -11,13 +11,13 @@
 
 ---
 
-## 📋 Descripción
+## Descripción
 
 Backend de NoBet construido con **NestJS** y **PostgreSQL**. Gestiona la autenticación de usuarios, el balance virtual, los tres módulos de juego (ruleta, blackjack y dados) y el sistema social de amigos. La ruleta funciona en tiempo real mediante un **WebSocket Gateway** basado en Socket.IO.
 
 ---
 
-## 🚀 Instalación y Arranque
+## Instalación y Arranque
 
 ### Requisitos previos
 - Node.js 18+
@@ -64,7 +64,7 @@ PORT=3000
 
 ---
 
-## 🐳 Docker
+## Docker
 
 ```bash
 # Arrancar todo el stack (backend + PostgreSQL)
@@ -77,7 +77,7 @@ docker run -p 3000:3000 --env-file .env nobet-backend
 
 ---
 
-## 🗂️ Estructura del Proyecto
+## Estructura del Proyecto
 
 ```
 src/
@@ -114,7 +114,7 @@ src/
 
 ---
 
-## 📡 API Reference
+## API Reference
 
 ### Autenticación
 
@@ -168,9 +168,9 @@ src/
 
 ---
 
-## 🎮 Lógica de Juegos
+## Lógica de Juegos
 
-### 🎡 Ruleta — Ciclo de Fases
+### Ruleta — Ciclo de Fases
 
 El servidor ejecuta un bucle cada segundo que avanza automáticamente entre tres fases:
 
@@ -191,7 +191,7 @@ BETTING (15s) ──► SPINNING (5s) ──► PAYING (3s) ──► BETTING ..
 | Docena | 2:1 | 3× |
 | Columna | 2:1 | 3× |
 
-### 🃏 Blackjack — Estado en Memoria
+### Blackjack — Estado en Memoria
 
 Las partidas activas se almacenan en un `Map<userId, GameState>` en memoria. Al finalizar cada partida (win/loss/draw), el estado se elimina del Map y el balance se actualiza en la base de datos:
 
@@ -204,7 +204,7 @@ Las partidas activas se almacenan en un `Map<userId, GameState>` en memoria. Al 
 
 La lógica del crupier sigue la regla estándar de casino: **pide con ≤16, se planta con ≥17**.
 
-### 🎲 Dados — Modelo de Probabilidad
+### Dados — Modelo de Probabilidad
 
 ```
 multiplier = (100 - houseEdge) / winChance
@@ -216,7 +216,7 @@ El resultado se genera exclusivamente en el servidor. El balance se descuenta **
 
 ---
 
-## 🗄️ Modelo de Base de Datos
+## Modelo de Base de Datos
 
 ### Entidad `User`
 
@@ -240,7 +240,7 @@ El resultado se genera exclusivamente en el servidor. El balance se descuenta **
 
 ---
 
-## 🔐 Seguridad
+## Seguridad
 
 - Contraseñas hasheadas con **bcrypt** (salt rounds: 10)
 - Autenticación **stateless** mediante JWT con expiración configurable
@@ -250,7 +250,7 @@ El resultado se genera exclusivamente en el servidor. El balance se descuenta **
 
 ---
 
-## 🧱 Stack Tecnológico
+## Stack Tecnológico
 
 | Tecnología | Versión | Uso |
 |------------|---------|-----|
@@ -265,6 +265,6 @@ El resultado se genera exclusivamente en el servidor. El balance se descuenta **
 
 ---
 
-## 📄 Licencia
+## Licencia
 
-MIT — Proyecto académico (TFG) · 2024/2025
+MIT — Proyecto académico (TFG) · 2025/2026
