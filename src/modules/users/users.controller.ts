@@ -15,11 +15,15 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @Post('claim-charity')
   async claimCharity(@Request() req) {
-    // Extraemos el ID directamente del token para máxima seguridad
     const userId = req.user.userId;
-    
-    // El servicio ya se encarga de sumar y guardar
     return await this.usersService.updateBalance(userId, 1);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('roulette-settle')
+  async rouletteSettle(@Request() req, @Body() body: { bets: any[], winner: number }) {
+    const userId = req.user.userId;
+    return await this.usersService.rouletteSettle(userId, body.bets, body.winner);
   }
 
   @Post('register')

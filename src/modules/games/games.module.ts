@@ -1,11 +1,16 @@
 import { Module } from '@nestjs/common';
 import { GamesController } from './games.controller';
 import { BlackjackService } from './blackjack/blackjack.service';
-import { UsersModule } from '../users/users.module'; // Importamos el Módulo
+import { DiceService } from './dice/dice.service';
+import { UsersModule } from '../users/users.module'; 
+import { RouletteModule } from './roulette/roulette.module';
 
 @Module({
-  imports: [UsersModule], // <--- ESTO ES LO QUE SOLUCIONA EL ERROR
+  imports: [UsersModule, RouletteModule],
   controllers: [GamesController],
-  providers: [BlackjackService],
+  providers: [
+    BlackjackService, 
+    DiceService
+  ],
 })
 export class GamesModule {}
