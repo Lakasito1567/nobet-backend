@@ -1,98 +1,270 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# 🎰 NoBet — Backend
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+> API REST + WebSocket Gateway para la plataforma de casino online NoBet.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+![NestJS](https://img.shields.io/badge/NestJS-10-E0234E?style=flat-square&logo=nestjs)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=flat-square&logo=typescript)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-4169E1?style=flat-square&logo=postgresql)
+![TypeORM](https://img.shields.io/badge/TypeORM-0.3-FE0902?style=flat-square)
+![Socket.IO](https://img.shields.io/badge/Socket.IO-4-010101?style=flat-square&logo=socketdotio)
+![Docker](https://img.shields.io/badge/Docker-ready-2496ED?style=flat-square&logo=docker)
 
-## Description
+---
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## 📋 Descripción
 
-## Project setup
+Backend de NoBet construido con **NestJS** y **PostgreSQL**. Gestiona la autenticación de usuarios, el balance virtual, los tres módulos de juego (ruleta, blackjack y dados) y el sistema social de amigos. La ruleta funciona en tiempo real mediante un **WebSocket Gateway** basado en Socket.IO.
 
-```bash
-$ npm install
-```
+---
 
-## Compile and run the project
+## 🚀 Instalación y Arranque
+
+### Requisitos previos
+- Node.js 18+
+- PostgreSQL 15+
+- npm o yarn
+
+### Pasos
 
 ```bash
-# development
-$ npm run start
+# 1. Clonar el repositorio
+git clone https://github.com/tu-usuario/nobet-backend.git
+cd nobet-backend
 
-# watch mode
-$ npm run start:dev
+# 2. Instalar dependencias
+npm install
 
-# production mode
-$ npm run start:prod
+# 3. Configurar variables de entorno
+cp .env.example .env
+# Editar .env con tus credenciales de base de datos y JWT secret
+
+# 4. Arrancar en desarrollo (con hot reload)
+npm run start:dev
 ```
 
-## Run tests
+El servidor estará disponible en `http://localhost:3000`
+
+### Variables de entorno
+
+```env
+# Base de datos
+DB_HOST=localhost
+DB_PORT=5432
+DB_USERNAME=postgres
+DB_PASSWORD=tu_password
+DB_DATABASE=nobet
+
+# JWT
+JWT_SECRET=tu_secret_muy_seguro
+JWT_EXPIRES_IN=7d
+
+# App
+PORT=3000
+```
+
+---
+
+## 🐳 Docker
 
 ```bash
-# unit tests
-$ npm run test
+# Arrancar todo el stack (backend + PostgreSQL)
+docker compose up
 
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+# Solo el backend
+docker build -t nobet-backend .
+docker run -p 3000:3000 --env-file .env nobet-backend
 ```
 
-## Deployment
+---
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+## 🗂️ Estructura del Proyecto
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+```
+src/
+├── modules/
+│   ├── auth/
+│   │   ├── auth.controller.ts     # POST /auth/login, /auth/register, GET /auth/profile
+│   │   ├── auth.service.ts        # Validación de credenciales y generación de JWT
+│   │   └── guards/
+│   │       └── jwt-auth.guard.ts  # Guard para proteger rutas privadas
+│   ├── users/
+│   │   ├── users.controller.ts    # Leaderboard, claim-charity, roulette-settle, amigos
+│   │   ├── users.service.ts       # Lógica de negocio: balance, amigos, ruleta settle
+│   │   ├── users.module.ts
+│   │   ├── dto/
+│   │   │   └── create-user.dto.ts
+│   │   └── entities/
+│   │       ├── user.entity.ts
+│   │       └── friend-request.entity.ts
+│   └── games/
+│       ├── blackjack/
+│       │   └── blackjack.service.ts   # Estado en memoria (Map), lógica completa
+│       ├── dice/
+│       │   ├── dice.controller.ts     # POST /games/dice/roll
+│       │   └── dice.service.ts        # RNG servidor, multiplicadores, balance
+│       ├── roulette/
+│       │   ├── roulette.gateway.ts    # WebSocket Gateway (Socket.IO)
+│       │   ├── roulette.service.ts    # Ciclo de juego, fases, número ganador
+│       │   └── roulette.module.ts
+│       ├── games.controller.ts        # POST /games/blackjack/play, /hit, /stand
+│       └── games.module.ts
+├── app.module.ts
+└── main.ts
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+---
 
-## Resources
+## 📡 API Reference
 
-Check out a few resources that may come in handy when working with NestJS:
+### Autenticación
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+| Método | Endpoint | Auth | Descripción |
+|--------|----------|------|-------------|
+| `POST` | `/auth/register` | ❌ | Crear cuenta nueva |
+| `POST` | `/auth/login` | ❌ | Iniciar sesión, devuelve JWT |
+| `GET` | `/auth/profile` | ✅ | Perfil del usuario autenticado |
 
-## Support
+### Usuarios
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+| Método | Endpoint | Auth | Descripción |
+|--------|----------|------|-------------|
+| `GET` | `/users/leaderboard` | ❌ | Top 10 global por balance |
+| `GET` | `/users/leaderboard/friends` | ✅ | Ranking de amigos del usuario |
+| `POST` | `/users/claim-charity` | ✅ | Reponer balance a 1 (solo si balance = 0) |
+| `POST` | `/users/roulette-settle` | ✅ | Resolver apuestas de ruleta y actualizar balance |
+| `POST` | `/users/friend-request` | ✅ | Enviar solicitud de amistad por username |
+| `GET` | `/users/friend-requests` | ✅ | Listar solicitudes pendientes recibidas |
+| `POST` | `/users/friend-request/accept` | ✅ | Aceptar solicitud de amistad |
+| `POST` | `/users/friend-request/reject` | ✅ | Rechazar solicitud de amistad |
+| `POST` | `/users/remove-friend` | ✅ | Eliminar amigo |
 
-## Stay in touch
+### Juegos
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+| Método | Endpoint | Auth | Descripción |
+|--------|----------|------|-------------|
+| `POST` | `/games/blackjack/play` | ✅ | Iniciar partida de blackjack con apuesta |
+| `POST` | `/games/blackjack/hit` | ✅ | Pedir carta |
+| `POST` | `/games/blackjack/stand` | ✅ | Plantarse (el crupier completa su mano) |
+| `POST` | `/games/dice/roll` | ✅ | Tirada de dados con apuesta |
 
-## License
+### WebSocket
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+| Evento | Dirección | Descripción |
+|--------|-----------|-------------|
+| `rouletteState` | Server → Client | Estado completo de la ruleta cada segundo |
+
+**Estructura del evento `rouletteState`:**
+```json
+{
+  "phase": "BETTING",
+  "timer": 12,
+  "history": [
+    { "number": 17, "color": "black" },
+    { "number": 0,  "color": "green" }
+  ],
+  "lastWinningNumber": { "number": 17, "color": "black" }
+}
+```
+
+---
+
+## 🎮 Lógica de Juegos
+
+### 🎡 Ruleta — Ciclo de Fases
+
+El servidor ejecuta un bucle cada segundo que avanza automáticamente entre tres fases:
+
+```
+BETTING (15s) ──► SPINNING (5s) ──► PAYING (3s) ──► BETTING ...
+```
+
+- **BETTING**: el frontend acepta apuestas del usuario. El balance se descuenta localmente al colocar cada ficha.
+- **SPINNING**: el servidor genera el número ganador y lo emite. El frontend anima la rueda.
+- **PAYING**: el frontend llama a `POST /users/roulette-settle` con las apuestas y el número ganador. El servidor calcula las ganancias y actualiza el balance en PostgreSQL.
+
+**Pagos de la ruleta europea:**
+
+| Apuesta | Pago | Devuelve |
+|---------|------|----------|
+| Número exacto (pleno) | 35:1 | 36× |
+| Color (rojo/negro) | 1:1 | 2× |
+| Docena | 2:1 | 3× |
+| Columna | 2:1 | 3× |
+
+### 🃏 Blackjack — Estado en Memoria
+
+Las partidas activas se almacenan en un `Map<userId, GameState>` en memoria. Al finalizar cada partida (win/loss/draw), el estado se elimina del Map y el balance se actualiza en la base de datos:
+
+```typescript
+// Balance tras cada resultado:
+// Victoria normal:  updateBalance(userId, +bet * 2)
+// Empate:           updateBalance(userId, +bet * 1)
+// Derrota:          sin operación (el bet fue descontado al iniciar)
+```
+
+La lógica del crupier sigue la regla estándar de casino: **pide con ≤16, se planta con ≥17**.
+
+### 🎲 Dados — Modelo de Probabilidad
+
+```
+multiplier = (100 - houseEdge) / winChance
+houseEdge  = 1.0%
+winChance  = condición 'over' ? (100 - target) : target
+```
+
+El resultado se genera exclusivamente en el servidor. El balance se descuenta **antes** de la tirada y el payout se acredita **después**, garantizando consistencia aunque el cliente pierda la conexión.
+
+---
+
+## 🗄️ Modelo de Base de Datos
+
+### Entidad `User`
+
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| `id` | `int` PK | Identificador único |
+| `username` | `varchar` UNIQUE | Nombre de usuario |
+| `email` | `varchar` UNIQUE | Correo electrónico |
+| `password` | `varchar` | Hash bcrypt |
+| `balance` | `decimal` | Balance virtual (default: 1000) |
+| `friends` | `User[]` | Relación ManyToMany self-referencing |
+
+### Entidad `FriendRequest`
+
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| `id` | `int` PK | Identificador único |
+| `sender` | `User` FK | Usuario que envía la solicitud |
+| `receiver` | `User` FK | Usuario que recibe la solicitud |
+| `status` | `enum` | `PENDING` / `ACCEPTED` / `REJECTED` |
+
+---
+
+## 🔐 Seguridad
+
+- Contraseñas hasheadas con **bcrypt** (salt rounds: 10)
+- Autenticación **stateless** mediante JWT con expiración configurable
+- Todas las rutas de juego protegidas con `JwtAuthGuard`
+- Validación de saldo en el servidor **antes** de cualquier operación de juego
+- El RNG de dados y ruleta se ejecuta **exclusivamente en el servidor**
+
+---
+
+## 🧱 Stack Tecnológico
+
+| Tecnología | Versión | Uso |
+|------------|---------|-----|
+| NestJS | 10 | Framework backend modular |
+| TypeScript | 5 | Tipado estático |
+| TypeORM | 0.3 | ORM para PostgreSQL |
+| PostgreSQL | 15 | Base de datos relacional |
+| Socket.IO | 4 | WebSocket Gateway (ruleta) |
+| Passport.js + JWT | - | Autenticación |
+| bcrypt | - | Hash de contraseñas |
+| Docker | - | Contenerización |
+
+---
+
+## 📄 Licencia
+
+MIT — Proyecto académico (TFG) · 2024/2025
